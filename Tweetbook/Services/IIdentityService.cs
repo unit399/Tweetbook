@@ -1,6 +1,9 @@
-﻿namespace Tweetbook.Services
+﻿using Tweetbook.Domain;
+
+namespace Tweetbook.Services
 {
-    public class IIdentityService
+    public interface IIdentityService
     {
+        Task<AuthenticationResult> RegisterAsync(string email, string password);
     }
 }

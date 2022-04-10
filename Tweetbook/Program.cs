@@ -36,3 +36,4 @@ app.UseEndpoints(endpoints =>
 });
 
 app.Run();
+//https://www.youtube.com/watch?v=APLjIrZgxyo&list=PLUOequmGnXxOgmSDWU7Tl6iQTsOtyjtwU&index=12
