@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using Tweetbook.Data;
 using Tweetbook.Installers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -7,6 +9,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.InstallServicesInAssembly(builder.Configuration);
 
 var app = builder.Build();
+
+using(var serviceScope = app.Services.CreateScope())
+{
+    var dbContext = serviceScope.ServiceProvider.GetService<DataContext>();
+    await dbContext.Database.MigrateAsync();
+}
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -35,5 +44,6 @@ app.UseEndpoints(endpoints =>
     endpoints.MapControllers();
 });
 
-app.Run();
+
+await app.RunAsync();
 //https://www.youtube.com/watch?v=APLjIrZgxyo&list=PLUOequmGnXxOgmSDWU7Tl6iQTsOtyjtwU&index=12
