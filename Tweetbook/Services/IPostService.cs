@@ -2,13 +2,8 @@
 
 namespace Tweetbook.Services
 {
-    public interface IPostService
+    public interface IPostService : IDataService<Post, Guid>
     {
-        Task<List<Post>> GetPostsAsync();
-        Task<Post> GetPostByIdAsync(Guid id);
-        Task<bool> UpdatePostAsync(Post postToUpdate);
-        Task<bool> DeletePostAsync(Guid id);
-        Task<bool> CreatePostAsync(Post post);
-        Task <bool> UserOwnsPostAsync(Guid postId, string v);
+        public Task<bool> UserOwnsPostAsync(string userId, Guid postId);
     }
 }

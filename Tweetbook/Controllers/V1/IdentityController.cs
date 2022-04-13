@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Tweetbook.Contracts.V1;
+using Tweetbook.Contract.V1;
 using Tweetbook.Contracts.V1.Requests;
 using Tweetbook.Contracts.V1.Responses;
 using Tweetbook.Services;
@@ -25,22 +25,18 @@ namespace Tweetbook.Controllers.V1
                     Errors = ModelState.Values.SelectMany(x => x.Errors.Select(xx => xx.ErrorMessage))
                 });
             }
-            
-            var authResponse = await _identityService.RegisterAsync(request.Email, request.Password);
 
-            if (!authResponse.Success)
+            var authenticationResult = await _identityService.RegisterAsync(request.Email, request.Password);
+
+            if (!authenticationResult.Success)
             {
                 return BadRequest(new AuthFailedResponse
                 {
-                    Errors = authResponse.Errors
+                    Errors = authenticationResult.Errors
                 });
             }
 
-            return Ok(new AuthSuccessResponse
-            {
-                Token = authResponse.Token,
-                RefreshToken = authResponse.RefreshToken
-            });        
+            return Ok(new AuthSuccessResponse { Token = authenticationResult.Token, RefreshToken = authenticationResult.RefreshToken });
         }
 
         [HttpPost(ApiRoutes.Identity.Login)]

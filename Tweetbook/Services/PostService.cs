@@ -6,65 +6,92 @@ namespace Tweetbook.Services
 {
     public class PostService : IPostService
     {
-        private readonly DataContext _dataContext;
+        private readonly DataContext dataContext;
 
         public PostService(DataContext dataContext)
         {
-            _dataContext = dataContext;
+            this.dataContext = dataContext;
         }
 
-        public async Task<bool> DeletePostAsync(Guid id)
+        public async Task<IEnumerable<Post>> GetAllAsync()
         {
-            var post = await GetPostByIdAsync(id);
-
-            if(post== null)
-                return false;
-
-            _dataContext.Posts.Remove(post);
-
-            var deleted = await _dataContext.SaveChangesAsync();
-
-            return deleted > 0;
+            return await this.dataContext.Posts.Include(post => post.Tags).ToListAsync();
         }
 
-        public async Task<bool> CreatePostAsync(Post post)
+        public async Task<Post> GetAsync(Guid Id)
         {
-            await _dataContext.Posts.AddAsync(post);
-            var created = await _dataContext.SaveChangesAsync();
-
-            return created > 0;
+            return await this.dataContext.Posts
+                .Include(post => post.Tags)
+                .SingleOrDefaultAsync(post => post.Id == Id);
         }
 
-        public async Task<Post> GetPostByIdAsync(Guid postId)
+        public async Task<bool> CreateAsync(Post post)
         {
-            return await _dataContext.Posts.SingleOrDefaultAsync(x=>x.Id == postId);
+            post.Tags?.ForEach(postTag => postTag.TagName = postTag.TagName.ToLower());
+
+            await this.AddNewTagsAsync(post);
+            this.dataContext.Posts.Add(post);
+            var numCreated = await this.dataContext.SaveChangesAsync();
+
+            return numCreated > 0;
         }
 
-        public async Task<List<Post>> GetPostsAsync()
+        public async Task<bool> UpdateAsync(Post updatedPost)
         {
-            return await _dataContext.Posts.ToListAsync();
+            updatedPost.Tags?.ForEach(x => x.TagName = x.TagName.ToLower());
+
+            await this.AddNewTagsAsync(updatedPost);
+            this.dataContext.Posts.Update(updatedPost);
+            var numUpdated = await this.dataContext.SaveChangesAsync();
+
+            return numUpdated > 0;
         }
 
-        public async Task<bool> UpdatePostAsync(Post postToUpdate)
+        public async Task<bool> DeleteAsync(Guid postId)
         {
-            _dataContext.Posts.Update(postToUpdate);
-            var updated = await _dataContext.SaveChangesAsync();
-            return updated > 0;
-        }
+            var postToDelete = await this.GetAsync(postId);
 
-        public async Task<bool> UserOwnsPostAsync(Guid postId, string userId)
-        {
-            var post = await _dataContext.Posts.AsNoTracking().SingleOrDefaultAsync(x => x.Id == postId);
-
-            if (post == null)
-                return false;
-
-            if (post.UserId != userId)
+            if (postToDelete == null)
             {
                 return false;
             }
 
-            return true;
+            this.dataContext.Posts.Remove(postToDelete);
+            var numDeleted = await this.dataContext.SaveChangesAsync();
+
+            return numDeleted > 0;
+        }
+
+        public async Task<bool> UserOwnsPostAsync(string userId, Guid postId)
+        {
+            var foundPost = await this.dataContext.Posts.AsNoTracking().SingleOrDefaultAsync(post => post.Id == postId);
+
+            if (foundPost == null)
+            {
+                return false;
+            }
+
+            return foundPost.UserId == userId;
+        }
+
+        private async Task AddNewTagsAsync(Post post)
+        {
+            foreach (var newTag in post.Tags)
+            {
+                var matchingTag = await this.dataContext.Tags.SingleOrDefaultAsync(existingTag => existingTag.Name == newTag.TagName);
+
+                if (matchingTag != null)
+                {
+                    continue;
+                }
+
+                this.dataContext.Tags.Add(new Tag
+                {
+                    Name = newTag.TagName,
+                    CreatorId = post.UserId,
+                    CreatedOn = DateTime.UtcNow
+                });
+            }
         }
     }
 }

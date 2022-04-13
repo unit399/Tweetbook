@@ -7,15 +7,20 @@ using Tweetbook.Data;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Http.Json;
-using Tweetbook.Contracts.V1;
 using Tweetbook.Contracts.V1.Requests;
 using Tweetbook.Contracts.V1.Responses;
+using System;
+using Tweetbook.Controllers.V1.Responses;
+using Tweetbook.Contract.V1;
+using System.Net.Http.Formatting;
+using System.Collections.Generic;
 
 namespace Tweetbook.IntegrationTests
 {
-    public class IntegrationTest
+    public class IntegrationTest : IDisposable
     {
         protected readonly HttpClient TestClient;
+        private readonly IServiceProvider _serviceProvider;
         
         protected IntegrationTest()
         {
@@ -35,6 +40,7 @@ namespace Tweetbook.IntegrationTests
                    });
                });
 
+            _serviceProvider = appFactory.Services;
             TestClient = appFactory.CreateClient();
         }
 
@@ -47,11 +53,15 @@ namespace Tweetbook.IntegrationTests
         {
             var response = await TestClient.PostAsJsonAsync(ApiRoutes.Identity.Register, new UserRegistrationRequest
             {
-                Email = "test@integration.com",
-                Password = "Okan123!"
+                Email = "test@test1.com",
+                Password = "Example123!"
             });
+            
+            List<MediaTypeFormatter> formatters = new List<MediaTypeFormatter>();
+            formatters.Add(new JsonMediaTypeFormatter());
+            
 
-            var registrationResponse = await response.Content.ReadAsAsync<AuthSuccessResponse>();
+            var registrationResponse = await response.Content.ReadAsAsync<AuthSuccessResponse>(formatters);
             return registrationResponse.Token;
         }
 
@@ -59,6 +69,13 @@ namespace Tweetbook.IntegrationTests
         {
             var response = await TestClient.PostAsJsonAsync(ApiRoutes.Posts.Create, request);
             return await response.Content.ReadAsAsync<PostResponse>();
+        }
+
+        public void Dispose()
+        {
+            using var serviceScope = _serviceProvider.CreateScope();
+            var context = serviceScope.ServiceProvider.GetService<DataContext>();
+            context.Database.EnsureDeleted();
         }
     }
 }

@@ -42,23 +42,39 @@ namespace Tweetbook.Installers
                 x.TokenValidationParameters = tokenValidationParameters;
             });
 
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("TagViewer", builder =>
+                {
+                    builder.RequireClaim("tags.view", "true");
+                });
+            });
+
             services.AddSwaggerGen(x =>
             {
                 x.SwaggerDoc("v1", new OpenApiInfo { Title = "Title", Version = "v1" });    // instead of Info
 
-                var securitySchema = new OpenApiSecurityScheme
+                x.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Description = "JWT Authorization header using the bearer scheme",
                     Name = "Authorization",
                     In = ParameterLocation.Header,
                     Type = SecuritySchemeType.ApiKey,
                     Scheme = "Bearer"
-                };
-                              
-                x.AddSecurityDefinition("Bearer", securitySchema);
-
-                var securityRequirement = new OpenApiSecurityRequirement {{ securitySchema, new [] {"Bearer"}}};
-                x.AddSecurityRequirement(securityRequirement);
+                });
+                x.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    { 
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }}, 
+                        new List<string>() 
+                    }
+                });
             });
         }
     }

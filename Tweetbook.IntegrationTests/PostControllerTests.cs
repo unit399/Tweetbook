@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Tweetbook.Contracts.V1;
+using Tweetbook.Contract.V1;
 using Tweetbook.Contracts.V1.Requests;
+using Tweetbook.Controllers.V1.Responses;
 using Tweetbook.Domain;
 using Xunit;
 
@@ -38,7 +39,7 @@ namespace Tweetbook.IntegrationTests
 
             // Assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var returnedPost = await response.Content.ReadAsAsync<Post>();
+            var returnedPost = await response.Content.ReadAsAsync<PostResponse>();
             returnedPost.Id.Should().Be(createdPost.Id);
             returnedPost.Name.Should().Be("Test post");
         }

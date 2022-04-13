@@ -146,9 +146,12 @@ namespace Tweetbook.Services
 
             var newUser = new IdentityUser
             {
+                Id = Guid.NewGuid().ToString(),
                 Email = email,
                 UserName = email
             };
+
+            //await _userManager.AddClaimAsync(newUser, new Claim("tags.view", "true"));
 
             var createdUser = await _userManager.CreateAsync(newUser, password);
 
@@ -167,15 +170,21 @@ namespace Tweetbook.Services
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtSettings.Secret);
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[]
+            var claims = new List<Claim>
                 {
                     new Claim(JwtRegisteredClaimNames.Sub, user.Email),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     new Claim(JwtRegisteredClaimNames.Email, user.Email),
                     new Claim("id", user.Id)
-                }),
+                };
+
+            var userClaims = await _userManager.GetClaimsAsync(user);
+
+            claims.AddRange(userClaims);
+            
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
                 Expires = DateTime.UtcNow.Add(_jwtSettings.TokenLifetime),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
@@ -187,8 +196,7 @@ namespace Tweetbook.Services
                 JwtId = token.Id,
                 UserId = user.Id,
                 CreationDate = DateTime.UtcNow,
-                ExpiryDate = DateTime.UtcNow.AddMonths(6),
-                Token = Guid.NewGuid().ToString()
+                ExpiryDate = DateTime.UtcNow.AddMonths(6)
             };
 
             await _dataContext.RefreshTokens.AddAsync(refreshToken);

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Tweetbook.Data;
+using Tweetbook.Domain;
 using Tweetbook.Services;
 
 namespace Tweetbook.Installers
@@ -18,7 +19,11 @@ namespace Tweetbook.Installers
             services.AddDefaultIdentity<IdentityUser>()
                 .AddEntityFrameworkStores<DataContext>();
 
-            services.AddScoped<IPostService, PostService>();
+            services.AddScoped<PostService>();
+            services.AddScoped<IDataService<Post, Guid>>(serviceProvider => serviceProvider.GetService<PostService>());
+            services.AddScoped<IPostService>(serviceProvider => serviceProvider.GetService<PostService>());
+
+            services.AddScoped<IDataService<Tag, string>, TagService>();
         }
     }
 }
