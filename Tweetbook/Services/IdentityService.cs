@@ -187,7 +187,8 @@ namespace Tweetbook.Services
                 JwtId = token.Id,
                 UserId = user.Id,
                 CreationDate = DateTime.UtcNow,
-                ExpiryDate = DateTime.UtcNow.AddMonths(6)
+                ExpiryDate = DateTime.UtcNow.AddMonths(6),
+                Token = Guid.NewGuid().ToString()
             };
 
             await _dataContext.RefreshTokens.AddAsync(refreshToken);
