@@ -32,7 +32,7 @@ namespace Tweetbook.IntegrationTests
         {
             // Arrange
             await AuthenticateAsync();
-            var createdPost = await CreatePostAsync(new CreatePostRequest {Name = "Test post"});
+            var createdPost = await CreatePostAsync(new CreatePostRequest {Name = "Test post", Tags = new List<string>()});
 
             // Act
             var response = await TestClient.GetAsync(ApiRoutes.Posts.Get.Replace("{postId}", createdPost.Id.ToString()));
