@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tweetbook.Contract.V1;
@@ -12,24 +13,21 @@ namespace Tweetbook.Controllers.V1
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class TagsController : Controller
     {
-        private readonly IDataService<Tag, string> tagService;
+        private readonly IDataService<Tag, string> _tagService;
+        private readonly IMapper _mapper;
 
-        public TagsController(IDataService<Tag, string> tagService)
+        public TagsController(IDataService<Tag, string> tagService, IMapper mapper)
         {
-            this.tagService = tagService;
+            _tagService = tagService;
+            _mapper = mapper;
         }
 
         [HttpGet(ApiRoutes.Tags.GetAll)]
         public async Task<IActionResult> GetAll()
         {
-            var tags = await this.tagService.GetAllAsync();
+            var tags = await _tagService.GetAllAsync();
 
-            return Ok(tags.Select(tag => new TagResponse
-            {
-                Name = tag.Name,
-                CreatorId = tag.CreatorId,
-                CreatedOn = tag.CreatedOn
-            }));
+            return Ok(_mapper.Map<List<TagResponse>>(tags));
         }
 
         [HttpPost(ApiRoutes.Tags.Create)]
@@ -42,7 +40,7 @@ namespace Tweetbook.Controllers.V1
                 CreatedOn = DateTime.UtcNow
             };
 
-            var created = await tagService.CreateTagAsync(tag);
+            var created = await _tagService.CreateTagAsync(tag);
 
             if (!created)
             {
@@ -52,27 +50,27 @@ namespace Tweetbook.Controllers.V1
             var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
             var locationUri = baseUrl + "/" + ApiRoutes.Tags.Get.Replace("{tagName}", tag.Name);
 
-            return Created(locationUri, new TagResponse { Name = tag.Name, CreatorId = tag.CreatorId, CreatedOn = tag.CreatedOn });
+            return Created(locationUri, _mapper.Map<TagResponse>(tag));
         }
         
         [HttpGet(ApiRoutes.Tags.Get)]
         public async Task<IActionResult> Get([FromRoute]string tagName)
         {
-            var tag = await this.tagService.GetAsync(tagName);
+            var tag = await _tagService.GetAsync(tagName);
 
             if (tag == null)
             {
                 return NotFound();
             }
 
-            return Ok(tag);
+            return Ok(_mapper.Map<TagResponse>(tag));
         }
                 
         [HttpDelete(ApiRoutes.Tags.Delete)]
         [Authorize(Policy = "MustWorkForOkan")]
         public async Task<IActionResult> Delete([FromRoute] string tagName)
         {
-            if (!await this.tagService.DeleteAsync(tagName))
+            if (!await _tagService.DeleteAsync(tagName))
             {
                 return NotFound();
             }

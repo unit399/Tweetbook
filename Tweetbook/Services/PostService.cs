@@ -6,21 +6,21 @@ namespace Tweetbook.Services
 {
     public class PostService : IPostService
     {
-        private readonly DataContext dataContext;
+        private readonly DataContext _dataContext;
 
         public PostService(DataContext dataContext)
         {
-            this.dataContext = dataContext;
+            _dataContext = dataContext;
         }
 
         public async Task<IEnumerable<Post>> GetAllAsync()
         {
-            return await this.dataContext.Posts.Include(post => post.Tags).ToListAsync();
+            return await this._dataContext.Posts.Include(post => post.Tags).ToListAsync();
         }
 
         public async Task<Post> GetAsync(Guid Id)
         {
-            return await this.dataContext.Posts
+            return await this._dataContext.Posts
                 .Include(post => post.Tags)
                 .SingleOrDefaultAsync(post => post.Id == Id);
         }
@@ -29,9 +29,9 @@ namespace Tweetbook.Services
         {
             post.Tags?.ForEach(postTag => postTag.TagName = postTag.TagName.ToLower());
 
-            await this.AddNewTagsAsync(post);
-            this.dataContext.Posts.Add(post);
-            var numCreated = await this.dataContext.SaveChangesAsync();
+            await AddNewTagsAsync(post);
+            _dataContext.Posts.Add(post);
+            var numCreated = await _dataContext.SaveChangesAsync();
 
             return numCreated > 0;
         }
@@ -40,31 +40,31 @@ namespace Tweetbook.Services
         {
             updatedPost.Tags?.ForEach(x => x.TagName = x.TagName.ToLower());
 
-            await this.AddNewTagsAsync(updatedPost);
-            this.dataContext.Posts.Update(updatedPost);
-            var numUpdated = await this.dataContext.SaveChangesAsync();
+            await AddNewTagsAsync(updatedPost);
+            _dataContext.Posts.Update(updatedPost);
+            var numUpdated = await _dataContext.SaveChangesAsync();
 
             return numUpdated > 0;
         }
 
         public async Task<bool> DeleteAsync(Guid postId)
         {
-            var postToDelete = await this.GetAsync(postId);
+            var postToDelete = await GetAsync(postId);
 
             if (postToDelete == null)
             {
                 return false;
             }
 
-            this.dataContext.Posts.Remove(postToDelete);
-            var numDeleted = await this.dataContext.SaveChangesAsync();
+            _dataContext.Posts.Remove(postToDelete);
+            var numDeleted = await _dataContext.SaveChangesAsync();
 
             return numDeleted > 0;
         }
 
         public async Task<bool> UserOwnsPostAsync(string userId, Guid postId)
         {
-            var foundPost = await this.dataContext.Posts.AsNoTracking().SingleOrDefaultAsync(post => post.Id == postId);
+            var foundPost = await _dataContext.Posts.AsNoTracking().SingleOrDefaultAsync(post => post.Id == postId);
 
             if (foundPost == null)
             {
@@ -78,14 +78,14 @@ namespace Tweetbook.Services
         {
             foreach (var newTag in post.Tags)
             {
-                var matchingTag = await this.dataContext.Tags.SingleOrDefaultAsync(existingTag => existingTag.Name == newTag.TagName);
+                var matchingTag = await _dataContext.Tags.SingleOrDefaultAsync(existingTag => existingTag.Name == newTag.TagName);
 
                 if (matchingTag != null)
                 {
                     continue;
                 }
 
-                this.dataContext.Tags.Add(new Tag
+                _dataContext.Tags.Add(new Tag
                 {
                     Name = newTag.TagName,
                     CreatorId = post.UserId,

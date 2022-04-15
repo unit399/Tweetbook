@@ -8,12 +8,13 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.InstallServicesInAssembly(builder.Configuration);
+builder.Services.AddAutoMapper(typeof(Program));
 
 var app = builder.Build();
 
 using(var serviceScope = app.Services.CreateScope())
 {
-    var dbContext = serviceScope.ServiceProvider.GetRequiredService<DataContext>();
+    /*var dbContext = serviceScope.ServiceProvider.GetRequiredService<DataContext>();
     await dbContext.Database.MigrateAsync();
 
     var roleManager = serviceScope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -28,7 +29,7 @@ using(var serviceScope = app.Services.CreateScope())
     {
         var posterRole = new IdentityRole("Poster");
         await roleManager.CreateAsync(posterRole);
-    }
+    }*/
 }
 
 

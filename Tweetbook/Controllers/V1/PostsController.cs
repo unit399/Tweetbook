@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tweetbook.Contract.V1;
@@ -14,77 +15,61 @@ namespace Tweetbook.Controllers.V1
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class PostsController : Controller
     {
-        private readonly IPostService postService;
+        private readonly IPostService _postService;
+        private readonly IMapper _mapper;
 
-        public PostsController(IPostService postService)
+        public PostsController(IPostService postService, IMapper mapper)
         {
-            this.postService = postService;
+            _postService = postService;
+            _mapper = mapper;
         }
 
         [HttpGet(ApiRoutes.Posts.GetAll)]
         public async Task<IActionResult> GetAll()
         {
-            var posts = await this.postService.GetAllAsync();
+            var posts = await _postService.GetAllAsync();
 
-            return Ok(posts.Select(post => new PostResponse
-            {
-                Id = post.Id,
-                Name = post.Name,
-                Tags = post.Tags.Select(postTag => postTag.TagName)
-            }));
+            return Ok(_mapper.Map<List<PostResponse>>(posts));
         }
 
         [HttpGet(ApiRoutes.Posts.Get)]
         public async Task<IActionResult> Get([FromRoute] Guid postId)
         {
-            var foundPost = await this.postService.GetAsync(postId);
+            var post = await _postService.GetAsync(postId);
 
-            if (foundPost == null)
+            if (post == null)
             {
                 return NotFound();
             }
 
-            return Ok(new PostResponse
-            {
-                Id = foundPost.Id,
-                Name = foundPost.Name,
-                Tags = foundPost.Tags.Select(postTag => postTag.TagName)
-            });
+            return Ok(_mapper.Map<PostResponse>(post));
         }
 
         [HttpPut(ApiRoutes.Posts.Update)]
         public async Task<IActionResult> Update([FromRoute] Guid postId, [FromBody] UpdatePostRequest postRequest)
         {
-            var userOwnsPost = await this.postService.UserOwnsPostAsync(HttpContext.GetUserId(), postId);
+            var userOwnsPost = await _postService.UserOwnsPostAsync(HttpContext.GetUserId(), postId);
 
             if (!userOwnsPost)
             {
                 return BadRequest(new { error = "You do not own this post" });
             }
 
-            var post = await this.postService.GetAsync(postId);
+            var post = await _postService.GetAsync(postId);
             post.Name = postRequest.Name;
             post.Tags = postRequest.Tags.Select(tagName => new PostTag { TagName = tagName, PostId = post.Id }).ToList();
 
-            if (!await this.postService.UpdateAsync(post))
+            if (!await _postService.UpdateAsync(post))
             {
                 return NotFound();
             }
 
-            return Ok(new PostResponse
-            {
-                Id = post.Id,
-                Name = post.Name,
-                Tags = post.Tags.Select(postTag => postTag.TagName)
-            });
+            return Ok(_mapper.Map<PostResponse>(post));
         }
 
         [HttpPost(ApiRoutes.Posts.Create)]
-        public async Task<IActionResult> Create([FromBody] CreatePostRequest postRequest) // The FromBody attribute gives the framework a clue as to where the posted data is (from the body in this case)
-        {
-            // Make sure to map the request to your domain object! This is why we created an additional CreatePostRequest class
-            // What we expose to the client is a (versioned) contract/interface. Never mix up your contracts with domain objects,
-            // as you may want to change the contract, but keep the domain objects the same in the future.
+        public async Task<IActionResult> Create([FromBody] CreatePostRequest postRequest) 
+        {           
             var newPostId = Guid.NewGuid();
             var post = new Post
             {
@@ -94,34 +79,25 @@ namespace Tweetbook.Controllers.V1
                 Tags = postRequest.Tags.Select(tagName => new PostTag { TagName = tagName, PostId = newPostId }).ToList()
             };
 
-            await this.postService.CreateTagAsync(post);
+            await _postService.CreateTagAsync(post);
 
             var baseUrl = $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToUriComponent()}";
             var locationUri = $"{baseUrl}/{ApiRoutes.Posts.Get.Replace("{postId}", post.Id.ToString())}";
-
-            // As with the request object, also make sure to use a versioned contract class for the response.
-            // Both request and response look the same right now, but this could easily change in the future!
-            var response = new PostResponse
-            {
-                Id = post.Id,
-                Name = post.Name,
-                Tags = post.Tags.Select(postTag => postTag.TagName)
-            };
-
-            return Created(locationUri, response);
+                       
+            return Created(locationUri, _mapper.Map<PostResponse>(post));
         }
 
         [HttpDelete(ApiRoutes.Posts.Delete)]
         public async Task<IActionResult> Delete([FromRoute] Guid postId)
         {
-            var userOwnsPost = await this.postService.UserOwnsPostAsync(HttpContext.GetUserId(), postId);
+            var userOwnsPost = await _postService.UserOwnsPostAsync(HttpContext.GetUserId(), postId);
 
             if (!userOwnsPost)
             {
                 return BadRequest(new { error = "You do not own this post" });
             }
 
-            if (!await this.postService.DeleteAsync(postId))
+            if (!await _postService.DeleteAsync(postId))
             {
                 return NotFound();
             }

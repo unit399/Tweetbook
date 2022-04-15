@@ -53,7 +53,7 @@ namespace Tweetbook.IntegrationTests
         {
             var response = await TestClient.PostAsJsonAsync(ApiRoutes.Identity.Register, new UserRegistrationRequest
             {
-                Email = "test@test1.com",
+                Email = "test@test8.com",
                 Password = "Example123!"
             });
             
