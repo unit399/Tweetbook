@@ -25,7 +25,7 @@ namespace Tweetbook.Services
                 .SingleOrDefaultAsync(post => post.Id == Id);
         }
 
-        public async Task<bool> CreateAsync(Post post)
+        public async Task<bool> CreateTagAsync(Post post)
         {
             post.Tags?.ForEach(postTag => postTag.TagName = postTag.TagName.ToLower());
 

@@ -7,6 +7,7 @@ namespace Tweetbook.Domain
     public class Tag
     {
         [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public string Name { get; set; }
 
         public string CreatorId { get; set; }

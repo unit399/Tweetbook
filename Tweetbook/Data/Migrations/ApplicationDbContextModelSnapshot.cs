@@ -242,7 +242,7 @@ namespace Tweetbook.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Posts");
+                    b.ToTable("Posts", (string)null);
                 });
 
             modelBuilder.Entity("Tweetbook.Domain.PostTag", b =>
@@ -257,7 +257,7 @@ namespace Tweetbook.Data.Migrations
 
                     b.HasIndex("TagName");
 
-                    b.ToTable("PostTags");
+                    b.ToTable("PostTags", (string)null);
                 });
 
             modelBuilder.Entity("Tweetbook.Domain.RefreshToken", b =>
@@ -290,7 +290,7 @@ namespace Tweetbook.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens");
+                    b.ToTable("RefreshTokens", (string)null);
                 });
 
             modelBuilder.Entity("Tweetbook.Domain.Tag", b =>
@@ -309,7 +309,7 @@ namespace Tweetbook.Data.Migrations
 
                     b.HasIndex("CreatorId");
 
-                    b.ToTable("Tags");
+                    b.ToTable("Tags", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

@@ -6,7 +6,7 @@
 
         Task<TItem> GetAsync(TKey key);
 
-        Task<bool> CreateAsync(TItem item);
+        Task<bool> CreateTagAsync(TItem item);
 
         Task<bool> UpdateAsync(TItem item);
 

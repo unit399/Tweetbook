@@ -1,3 +1,6 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Tweetbook.Data;
 using Tweetbook.Installers;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,11 +11,25 @@ builder.Services.InstallServicesInAssembly(builder.Configuration);
 
 var app = builder.Build();
 
-/*using(var serviceScope = app.Services.CreateScope())
+using(var serviceScope = app.Services.CreateScope())
 {
-    var dbContext = serviceScope.ServiceProvider.GetService<DataContext>();
+    var dbContext = serviceScope.ServiceProvider.GetRequiredService<DataContext>();
     await dbContext.Database.MigrateAsync();
-}*/
+
+    var roleManager = serviceScope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+    if (!await roleManager.RoleExistsAsync("Admin"))
+    {
+        var adminRole = new IdentityRole("Admin");
+        await roleManager.CreateAsync(adminRole);
+    }
+    
+    if (!await roleManager.RoleExistsAsync("Poster"))
+    {
+        var posterRole = new IdentityRole("Poster");
+        await roleManager.CreateAsync(posterRole);
+    }
+}
 
 
 // Configure the HTTP request pipeline.

@@ -20,7 +20,7 @@ namespace Tweetbook.Services
 
         public async Task<bool> DeleteAsync(string tagName)
         {
-            var tagToDelete = await this.dataContext.Tags.FirstOrDefaultAsync(tag => tag.Name == tagName);
+            var tagToDelete = await dataContext.Tags.FirstOrDefaultAsync(tag => tag.Name == tagName);
 
             if (tagToDelete == null)
             {
@@ -33,14 +33,17 @@ namespace Tweetbook.Services
             return numDeleted > 0;
         }
 
-        public Task<Tag> GetAsync(string tagName)
+        public async Task<Tag> GetAsync(string tagName)
         {
-            throw new NotImplementedException();
+            return await dataContext.Tags.SingleOrDefaultAsync(tag => tag.Name == tagName);
         }
 
-        public Task<bool> CreateAsync(Tag newTag)
+        public async Task<bool> CreateTagAsync(Tag newTag)
         {
-            throw new NotImplementedException();
+            this.dataContext.Tags.Add(newTag);
+            var numCreated = await dataContext.SaveChangesAsync();
+
+            return numCreated > 0;
         }
 
         public Task<bool> UpdateAsync(Tag item)

@@ -144,14 +144,13 @@ namespace Tweetbook.Services
                 };
             }
 
+            var newUserId = Guid.NewGuid();
             var newUser = new IdentityUser
             {
-                Id = Guid.NewGuid().ToString(),
+                Id = newUserId.ToString(),
                 Email = email,
                 UserName = email
             };
-
-            //await _userManager.AddClaimAsync(newUser, new Claim("tags.view", "true"));
 
             var createdUser = await _userManager.CreateAsync(newUser, password);
 
@@ -163,6 +162,8 @@ namespace Tweetbook.Services
                 };
             }
 
+            await _userManager.AddClaimAsync(newUser, new Claim("tags.view", "true"));
+            
             return await GenerateAuthenticationResultForUserAsync(newUser);
         }
 
@@ -170,6 +171,7 @@ namespace Tweetbook.Services
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtSettings.Secret);
+            
             var claims = new List<Claim>
                 {
                     new Claim(JwtRegisteredClaimNames.Sub, user.Email),
@@ -179,7 +181,6 @@ namespace Tweetbook.Services
                 };
 
             var userClaims = await _userManager.GetClaimsAsync(user);
-
             claims.AddRange(userClaims);
             
             var tokenDescriptor = new SecurityTokenDescriptor

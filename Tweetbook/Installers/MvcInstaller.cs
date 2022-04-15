@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using Tweetbook.Authorization;
 using Tweetbook.Options;
 using Tweetbook.Services;
 
@@ -44,11 +46,13 @@ namespace Tweetbook.Installers
 
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("TagViewer", builder =>
+                options.AddPolicy("MustWorkForOkan", policy =>
                 {
-                    builder.RequireClaim("tags.view", "true");
+                    policy.AddRequirements(new WorksForCompanyRequirement("test.com"));
                 });
             });
+
+            services.AddSingleton<IAuthorizationHandler, WorksForCompanyHandler>();
 
             services.AddSwaggerGen(x =>
             {
