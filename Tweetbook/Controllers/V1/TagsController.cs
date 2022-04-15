@@ -6,6 +6,7 @@ using Tweetbook.Contract.V1;
 using Tweetbook.Contract.V1.Requests;
 using Tweetbook.Controllers.V1.Responses;
 using Tweetbook.Domain;
+using Tweetbook.Extensions;
 using Tweetbook.Services;
 
 namespace Tweetbook.Controllers.V1
@@ -35,8 +36,8 @@ namespace Tweetbook.Controllers.V1
         {
             var tag = new Tag
             {
-                Name = request.Name,
-                CreatorId = HttpContext.User.Identity.Name,
+                Name = request.TagName,
+                CreatorId = HttpContext.GetUserId(),
                 CreatedOn = DateTime.UtcNow
             };
 
