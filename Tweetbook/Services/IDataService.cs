@@ -4,7 +4,7 @@ namespace Tweetbook.Services
 {
     public interface IDataService<TItem, TKey>
     {
-        Task<IEnumerable<TItem>> GetAllAsync(PaginationFilter paginationFilter = null);
+        Task<IEnumerable<TItem>> GetAllAsync(GetAllPostsFilter filter = null, PaginationFilter paginationFilter = null);
 
         Task<TItem> GetAsync(TKey key);
 

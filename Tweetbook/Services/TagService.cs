@@ -13,7 +13,7 @@ namespace Tweetbook.Services
             _dataContext = dataContext;
         }
 
-        public async Task<IEnumerable<Tag>> GetAllAsync(PaginationFilter paginationFilter = null)
+        public async Task<IEnumerable<Tag>> GetAllAsync(GetAllPostsFilter filter = null, PaginationFilter paginationFilter = null)
         {
             if (paginationFilter == null)
                 return await _dataContext.Tags.AsNoTracking().ToListAsync();
