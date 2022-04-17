@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Tweetbook.Contract.V1;
 using Tweetbook.Contract.V1.Requests;
 using Tweetbook.Contract.V1.Responses;
+using Tweetbook.Contracts.V1;
 using Tweetbook.Controllers.V1.Responses;
 using Tweetbook.Domain;
 using Tweetbook.Extensions;

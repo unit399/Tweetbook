@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Tweetbook.Contracts\Tweetbook.Contracts.csproj" />
     <ProjectReference Include="..\Tweetbook\Tweetbook.csproj" />
   </ItemGroup>
 	<PropertyGroup>

@@ -1,4 +1,6 @@
-﻿namespace Tweetbook.Contract.V1.Responses
+﻿using System.Collections.Generic;
+
+namespace Tweetbook.Contract.V1.Responses
 {
     public class ErrorResponse
     {

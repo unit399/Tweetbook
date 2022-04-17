@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Tweetbook.Contract.V1;
+using Tweetbook.Contracts.V1;
 using Tweetbook.Contracts.V1.Requests;
 using Tweetbook.Contracts.V1.Responses;
 using Tweetbook.Services;

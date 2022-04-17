@@ -1,4 +1,7 @@
-﻿namespace Tweetbook.Controllers.V1.Responses
+﻿using System;
+using System.Collections.Generic;
+
+namespace Tweetbook.Controllers.V1.Responses
 {
     public class PostResponse
     {
@@ -7,6 +10,6 @@
         public string Name { get; set; }
         public string UserId { get; set; }
 
-        public IEnumerable<TagResponse>? Tags { get; set; }
+        public IEnumerable<TagResponse> Tags { get; set; }
     }
 }

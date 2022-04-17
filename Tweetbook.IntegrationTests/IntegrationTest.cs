@@ -14,6 +14,7 @@ using Tweetbook.Controllers.V1.Responses;
 using Tweetbook.Contract.V1;
 using System.Net.Http.Formatting;
 using System.Collections.Generic;
+using Tweetbook.Contracts.V1;
 
 namespace Tweetbook.IntegrationTests
 {

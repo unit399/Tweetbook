@@ -25,6 +25,10 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="7.0.2" />
   </ItemGroup>
+	
+  <ItemGroup>
+    <ProjectReference Include="..\Tweetbook.Contracts\Tweetbook.Contracts.csproj" />
+  </ItemGroup>
 	<PropertyGroup>
 		<PreserveCompilationContext>true</PreserveCompilationContext>
 	</PropertyGroup>

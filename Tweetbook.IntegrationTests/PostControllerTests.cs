@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Tweetbook.Contract.V1;
+using Tweetbook.Contracts.V1;
 using Tweetbook.Contracts.V1.Requests;
 using Tweetbook.Controllers.V1.Responses;
 using Tweetbook.Domain;
