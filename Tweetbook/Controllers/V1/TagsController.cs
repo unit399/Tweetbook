@@ -55,7 +55,7 @@ namespace Tweetbook.Controllers.V1
                 CreatedOn = DateTime.UtcNow
             };
 
-            var created = await _tagService.CreateTagAsync(tag);
+            var created = await _tagService.CreatePostAsync(tag);
 
             if (!created)
             {

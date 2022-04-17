@@ -66,10 +66,10 @@ namespace Tweetbook.IntegrationTests
             return registrationResponse.Token;
         }
 
-        protected async Task<PostResponse> CreatePostAsync(CreatePostRequest request)
+        protected async Task<Response<PostResponse>> CreatePostAsync(CreatePostRequest request)
         {
             var response = await TestClient.PostAsJsonAsync(ApiRoutes.Posts.Create, request);
-            return await response.Content.ReadAsAsync<PostResponse>();
+            return await response.Content.ReadAsAsync<Response<PostResponse>>();
         }
 
         public void Dispose()

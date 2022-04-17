@@ -13,19 +13,23 @@ namespace Tweetbook.Services
             _dataContext = dataContext;
         }
 
-        public async Task<IEnumerable<Post>> GetAllAsync()
+        public async Task<IEnumerable<Post>> GetAllAsync(PaginationFilter paginationFilter = null)
         {
-            return await this._dataContext.Posts.Include(post => post.Tags).ToListAsync();
+            if (paginationFilter == null)
+                return await _dataContext.Posts.Include(post => post.Tags).ToListAsync();
+
+            var skip = (paginationFilter.PageNumber - 1) * paginationFilter.PageSize;
+            return await _dataContext.Posts.Include(post => post.Tags).Skip(skip).Take(paginationFilter.PageSize).ToListAsync();
         }
 
         public async Task<Post> GetAsync(Guid Id)
         {
-            return await this._dataContext.Posts
+            return await _dataContext.Posts
                 .Include(post => post.Tags)
                 .SingleOrDefaultAsync(post => post.Id == Id);
         }
 
-        public async Task<bool> CreateTagAsync(Post post)
+        public async Task<bool> CreatePostAsync(Post post)
         {
             post.Tags?.ForEach(postTag => postTag.TagName = postTag.TagName.ToLower());
 
