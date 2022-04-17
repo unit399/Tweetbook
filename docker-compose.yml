@@ -13,7 +13,8 @@ services:
     depends_on:
       - db-server
     networks:
-      - localdev			
+      - localdev
+      - redis
       
   db-server:
     image: microsoft/mssql-server-linux:2017-latest
@@ -26,3 +27,9 @@ services:
       - "1400:1433"
     networks:
       - localdev
+
+redis:
+  image: redis
+  container_name: redis
+  ports:
+    - "6379:6379"
