@@ -28,7 +28,6 @@ namespace Tweetbook.IntegrationTests
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var posts = (await response.Content.ReadAsAsync<PagedResponse<PostResponse>>());
             posts.Data.Should().BeEmpty();
-            posts.Data.Should().BeNull();
         }
 
         [Fact]
